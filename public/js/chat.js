@@ -17,12 +17,33 @@ const scrollToBottom = () => {
 
 
 socket.on('connect', () => {
+    const param = jQuery.deparam(window.location.search)
+    socket.emit('join', param, (err) => {
+        if (err) {
+            alert(err)
+            window.location.href = '/'
+        } else {
+            console.log('joined.')
+        }
+    })
     console.log('connected to server')
 })
 
 socket.on('disconnect', () => {
     console.log('disconnected from server')
 })
+
+
+socket.on('updateUserList', (userNames) => {
+    var ol = $('<ol></ol>')
+
+    userNames.forEach((name) => {
+        ol.append($('<li></li>').text(name))
+    })
+
+    $('#users').html(ol)
+})
+
 
 socket.on('newMessage', (message) => {
     const formattedTime = moment(message.createdAt).format('HH:MM:SS')
