@@ -27,11 +27,12 @@ socket.on('newLocationMessage', (message) => {
 $('#message-form').on('submit', (e) => {
     e.preventDefault()
 
+    let messageTextBox = $('[name=message]')
     socket.emit('createMessage', {
         from: 'User',
-        text: $('[name=message]').val()
-    }, (ack) => {
-
+        text: messageTextBox.val()
+    }, () => {
+        messageTextBox.val('')
     })
 })
 
@@ -40,12 +41,16 @@ locationButton.on('click', (e) => {
     if (!navigator.geolocation) {
         return alert('GeoLocation API not available')
     }
+
+    locationButton.attr('disabled', 'disabled').text('Sending Location...')
     navigator.geolocation.getCurrentPosition((pos) => {
+        locationButton.removeAttr('disabled').text('Send Location')
         socket.emit('createLocationMessage', {
             latitude: pos.coords.latitude,
             longitude: pos.coords.longitude
         })
     }, () => {
+        locationButton.removeAttr('disabled').text('Send Location')
         alert('Unable to fetch location')
     })
 })
