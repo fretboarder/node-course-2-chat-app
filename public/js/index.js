@@ -9,9 +9,18 @@ socket.on('disconnect', () => {
 })
 
 socket.on('newMessage', (message) => {
-    console.log('Got new message', message)
-    var li = $('<li></li>')
+    let li = $('<li></li>')
     li.text(`${message.from}: ${message.text}`)
+    $('#messages').append(li)
+})
+
+socket.on('newLocationMessage', (message) => {
+    let li = $('<li></li>')
+    let a = $('<a target="_blank">My current location</a>')
+    
+    li.text(`${message.from}: `)
+    a.attr('href', message.url)
+    li.append(a) 
     $('#messages').append(li)
 })
 
@@ -24,5 +33,19 @@ $('#message-form').on('submit', (e) => {
     }, (ack) => {
 
     })
+})
 
+const locationButton = $('#send-location')
+locationButton.on('click', (e) => {
+    if (!navigator.geolocation) {
+        return alert('GeoLocation API not available')
+    }
+    navigator.geolocation.getCurrentPosition((pos) => {
+        socket.emit('createLocationMessage', {
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude
+        })
+    }, () => {
+        alert('Unable to fetch location')
+    })
 })
